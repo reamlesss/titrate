@@ -11,6 +11,7 @@
 .bg-yellow {
   background-color: #ffc72c !important;
 }
+
 .bg-black {
   background-color: #27251f !important;
 }
@@ -31,4 +32,17 @@
   }
 }
 
-/* ------------------- */
+/* ------ FOOTER ------ */
+
+footer {
+  background-color: #da291c !important;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: auto;
+  width: 100vw !important;
+}
+
+.footer img {
+  width: 70px;
+  height: 60px;
+}
