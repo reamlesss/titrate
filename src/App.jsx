@@ -2,9 +2,17 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import logo from './assets/logo.png'
+import Rating from './components/Rating'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 function App() {
+
+ 
+
+
+
   return (
     <>
       {/* NAVBAR */}
@@ -28,7 +36,9 @@ function App() {
       </Navbar>
 
       {/* MAIN SECTION */}
-      <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5"></div>
+      <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
+         <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
+      </div>
 
       {/* FOOTER */}
       <footer className="bg-red text-center py-3 mt-auto">

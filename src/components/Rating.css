@@ -1,0 +1,28 @@
+.rating-container {
+  display: flex;
+  gap: 10px;
+  font-size: 2rem;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.rating-emoji {
+  transition: transform 0.2s ease, margin 0.2s ease, filter 0.2s ease;
+}
+
+/* Zvýraznění při najetí */
+.rating-emoji:hover {
+  transform: scale(1.8);
+  filter:grayscale(0%);
+}
+
+/* Černobílý efekt pro nevybrané emoji */
+.grayscale {
+  filter: grayscale(100%);
+}
+
+/* Zvýrazněné vybrané emoji */
+.selected {
+  transform: scale(1.5);
+  filter: none; /* Zůstane barevné */
+}
