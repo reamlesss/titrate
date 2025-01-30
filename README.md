@@ -3,4 +3,4 @@
 
 <!-- Zbytek jsou usefull odkazy -->
 
-https://github.com/kolking/react-native-rating
+https://github.com/alexandrtovmach/react-microsoft-login
