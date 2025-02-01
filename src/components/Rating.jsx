@@ -1,13 +1,14 @@
 import { useState } from "react";
 import "./Rating.css";
 
+// rater emojis, from worst to best 😉
 const emojis = ["🤮", "🙁", "😐", "😋", "😍"];
 
 function Rating() {
   const [selected, setSelected] = useState(null);
 
   const handleRating = (index) => {
-    setSelected(selected === index ? null : index); // Kliknutí na stejné emoji zruší výběr
+    setSelected(selected === index ? null : index); 
   };
 
   return (
