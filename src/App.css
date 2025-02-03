@@ -1,7 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap');
+
+
 
 * {
-  font-family: "Lexend", serif !important;
+  font-family: "Baloo 2", serif !important;
 }
 
 .bg-red {

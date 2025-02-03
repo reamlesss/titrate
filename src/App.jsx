@@ -8,15 +8,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {
-
- 
-
-
-
   return (
     <>
       {/* NAVBAR */}
-      <Navbar className="bg-red fixed-top w-100 text-light">
+      <Navbar className="bg-red fixed-top w-100 text-light fw-bold">
         <Container fluid className="d-flex justify-content-start align-items-center">
           <Navbar.Brand href="#home" className="text-light">
             <img
@@ -37,7 +32,13 @@ function App() {
 
       {/* MAIN SECTION */}
       <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
-         <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
+        {/* <h1>TitRate</h1> */}
+
+        <div className='d-flex flex-row gap-5 ratings'>
+            <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
+          <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
+            <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
+          </div>
       </div>
 
       {/* FOOTER */}
