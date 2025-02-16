@@ -2,12 +2,24 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import logo from './assets/logo.png'
-import Rating from './components/Rating'
+import Rating from './components/old rating/Rating'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import TinderCard from 'react-tinder-card'
 
 
 function App() {
+
+      
+      const onSwipe = (direction) => {
+      console.log('You swiped: ' + direction)
+    }
+
+    const onCardLeftScreen = (myIdentifier) => {
+      console.log(myIdentifier + ' left the screen')
+  }
+  
+
   return (
     <>
       {/* NAVBAR */}
@@ -34,12 +46,15 @@ function App() {
       <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
         {/* <h1>TitRate</h1> */}
 
-        <div className='d-flex flex-row gap-5 ratings'>
+
+        <TinderCard onSwipe={onSwipe} onCardLeftScreen={() => onCardLeftScreen('foobar')} preventSwipe={['right','left']}><Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} /></TinderCard>
+
+        {/* <div className='d-flex flex-row gap-5 ratings'>
             <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
           <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
             <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
-          </div>
-      </div>
+          </div> */}
+      </div>  
 
       {/* FOOTER */}
       <footer className="bg-red text-center py-3 mt-auto">
