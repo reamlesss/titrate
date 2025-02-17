@@ -2,23 +2,36 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import logo from './assets/logo.png'
-import Rating from './components/old rating/Rating'
+import SwipeCard from './components/SwipeCard'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TinderCard from 'react-tinder-card'
-
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function App() {
+  const [lunches, setLunches] = useState([]);
 
-      
-      const onSwipe = (direction) => {
-      console.log('You swiped: ' + direction)
-    }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/scrape');
+        setLunches(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
-    const onCardLeftScreen = (myIdentifier) => {
-      console.log(myIdentifier + ' left the screen')
+    fetchData();
+  }, []);
+
+  const onSwipe = (direction) => {
+    console.log('You swiped: ' + direction)
   }
-  
+
+  const onCardLeftScreen = (myIdentifier) => {
+    console.log(myIdentifier + ' left the screen')
+  }
 
   return (
     <>
@@ -36,8 +49,7 @@ function App() {
           </Navbar.Brand>
           <Nav className="justify-content-center">
             <Nav.Link href="#about" className="text-light">O nás</Nav.Link>
-            <Nav.Link href="#services" className="text-light">Služby</Nav.Link>
-            <Nav.Link href="#contact" className="text-light">Kontakt</Nav.Link>
+            <Nav.Link href="#services" className="text-light">Login/Profil</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
@@ -46,8 +58,22 @@ function App() {
       <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
         {/* <h1>TitRate</h1> */}
 
+        <TinderCard onSwipe={onSwipe} onCardLeftScreen={() => onCardLeftScreen('foobar')} preventSwipe={['right','left']}><SwipeCard  /></TinderCard>
 
-        <TinderCard onSwipe={onSwipe} onCardLeftScreen={() => onCardLeftScreen('foobar')} preventSwipe={['right','left']}><Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} /></TinderCard>
+        <div className="App">
+          <h1>Scraped Lunches from JECNA</h1>
+          {lunches.length > 0 ? (
+            <ul>
+              {lunches.map((lunch, index) => (
+                <li key={index}>
+                  <strong>{lunch.day}</strong>: {lunch.lunchNumber} - {lunch.lunchDescription}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No lunches found.</p>
+          )}
+        </div>
 
         {/* <div className='d-flex flex-row gap-5 ratings'>
             <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
