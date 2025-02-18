@@ -1,4 +1,4 @@
-.rating-container {
+.swipe-card {
   background-color: #ffc72c;
   padding: 30px;
   border-radius: 15px;
@@ -6,25 +6,29 @@
   text-align: center;
   max-width: 400px;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   cursor: default;
 }
 
-.rating-container h1 {
+.swipe-card h1 {
   font-size: 45px;
 }
-.rating-container p {
+.swipe-card p {
   font-size: 25px;
 }
 
-.rating-container p,
-.rating-container h1 {
-  user-select: none;
+.swipe-card p,
+.swipe-card h1 {
+  -webkit-user-select: none !important; /* Safari, stejne to nefunguje */
+  user-select: none !important;
 }
 
 @keyframes scaleIn {
   0% {
     transform: scale(0.5);
-    opacity: 0;
+    /* opacity: 0; */
   }
   100% {
     transform: scale(1);
@@ -33,5 +37,5 @@
 }
 
 .swipe-card {
-  animation: scaleIn 0.5s ease-in-out;
+  animation: scaleIn 0.3s ease-in-out;
 }

@@ -1,37 +1,53 @@
-import Navbar from 'react-bootstrap/Navbar'
-import Container from 'react-bootstrap/Container'
-import Nav from 'react-bootstrap/Nav'
-import logo from './assets/logo.png'
-import SwipeCard from './components/SwipeCard'
-import './App.css'
+import Navbar from 'react-bootstrap/Navbar';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Spinner from 'react-bootstrap/Spinner';
+import logo from './assets/logo.png';
+import SwipeCard from './components/SwipeCard';
+import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import TinderCard from 'react-tinder-card'
+import TinderCard from 'react-tinder-card';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function App() {
-  const [lunches, setLunches] = useState([]);
+  const [todayLunches, setTodayLunches] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [swipeClass, setSwipeClass] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTodayLunches = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/scrape');
-        setLunches(response.data);
+        const response = await axios.get('http://localhost:3000/scrape/today');
+        setTodayLunches(response.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching today\'s lunches:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchTodayLunches();
   }, []);
 
   const onSwipe = (direction) => {
-    console.log('You swiped: ' + direction)
-  }
+    if (direction === 'left') {
+      console.log('didn\'t like');
+      setSwipeClass('swipe-left');
+    } else if (direction === 'right') {
+      console.log('did like');
+      setSwipeClass('swipe-right');
+    }
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+      setSwipeClass('');
+    }, 800); // Match the duration of the swipe animations
+  };
 
   const onCardLeftScreen = (myIdentifier) => {
-    console.log(myIdentifier + ' left the screen')
-  }
+    console.log(myIdentifier + ' left the screen');
+  };
 
   return (
     <>
@@ -56,31 +72,37 @@ function App() {
 
       {/* MAIN SECTION */}
       <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
-        {/* <h1>TitRate</h1> */}
+        {!loading && todayLunches.length > 0 && currentIndex < todayLunches.length && (
+          <h1 className='mb-5 info-heading'>
+            Swipuj jako na tinderu!
+          </h1>
+        )}
 
-        <TinderCard onSwipe={onSwipe} onCardLeftScreen={() => onCardLeftScreen('foobar')} preventSwipe={['right','left']}><SwipeCard  /></TinderCard>
+        {!loading && (todayLunches.length === 0 || currentIndex >= todayLunches.length) && (
+          <h1 className='mb-5 no-lunches-heading'>
+            Už nejsou žádné obědy
+          </h1>
+        )}
 
-        <div className="App">
-          <h1>Scraped Lunches from JECNA</h1>
-          {lunches.length > 0 ? (
-            <ul>
-              {lunches.map((lunch, index) => (
-                <li key={index}>
-                  <strong>{lunch.day}</strong>: {lunch.lunchNumber} - {lunch.lunchDescription}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No lunches found.</p>
-          )}
-        </div>
-
-        {/* <div className='d-flex flex-row gap-5 ratings'>
-            <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
-          <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
-            <Rating defaultRating={2} onRate={(rating) => console.log("Vybrané hodnocení:", rating)} />
-          </div> */}
-      </div>  
+        {loading ? (
+          <Spinner animation="border" role="status" size="lg" variant="danger">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        ) : todayLunches.length > 0 && currentIndex < todayLunches.length ? (
+          <TinderCard
+            key={currentIndex}
+            onSwipe={onSwipe}
+            onCardLeftScreen={() => onCardLeftScreen(todayLunches[currentIndex].lunchNumber)}
+            preventSwipe={['up', 'down']}
+          >
+            <div className={swipeClass}>
+              <SwipeCard lunch={todayLunches[currentIndex]} />
+            </div>
+          </TinderCard>
+        ) : (
+          <p className='fs-1 d-none'>Už nejsou žádné obědy.</p>
+        )}
+      </div>
 
       {/* FOOTER */}
       <footer className="bg-red text-center py-3 mt-auto">
@@ -93,7 +115,7 @@ function App() {
         />
       </footer>
     </>
-  )
+  );
 }
 
 export default App;

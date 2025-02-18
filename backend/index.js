@@ -1,9 +1,12 @@
 const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
+const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
 
 const scrapeData = async () => {
   const url = "https://strav.nasejidelna.cz/0341/login";
@@ -81,9 +84,18 @@ app.get("/scrape/today", async (req, res) => {
   console.log("Scraping for current day...");
   try {
     const scrapedData = await scrapeData();
-    const today = new Date().toDateString();
+    const today = new Date().toLocaleDateString("cs-CZ", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
     const todayData = scrapedData.filter(
-      (lunch) => parseDate(lunch.day).toDateString() === today
+      (lunch) =>
+        parseDate(lunch.day).toLocaleDateString("cs-CZ", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) === today
     );
     console.log(todayData);
     res.json(todayData);
@@ -107,9 +119,18 @@ app.listen(PORT, async () => {
     });
     console.log("Current week lunches:", currentWeekData);
 
-    const today = new Date().toDateString();
+    const today = new Date().toLocaleDateString("cs-CZ", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
     const todayData = scrapedData.filter(
-      (lunch) => parseDate(lunch.day).toDateString() === today
+      (lunch) =>
+        parseDate(lunch.day).toLocaleDateString("cs-CZ", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) === today
     );
     console.log("Today's lunches:", todayData);
   } catch (error) {

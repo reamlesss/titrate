@@ -1,26 +1,20 @@
-import "./SwipeCard.css";
+import React from 'react';
+import './SwipeCard.css';
 
-function SwipeCard( ) {
-  return ( 
-    <div className="swipe-card rating-container">
-      <h1 className="rating-title">Slepičí vývar se zeleninou</h1>
-      <p className="rating-sub">plněné papriky v rajské omáčce, houskové knedlíky,nápoj ovocný</p>
-      {/* <h2 className="mt-3">Moje hodnocení:</h2>
-        <div className="emoji-container">
-          {emojis.map((emoji, index) => (
-            <span
-              key={index}
-              className={`rating-emoji ${
-                selected === index ? "selected" : selected !== null ? "grayscale-blur" : ""
-              }`}
-              onClick={() => handleRating(index)}
-            >
-              {emoji}
-            </span>
-          ))}
-            </div> */}
+const SwipeCard = ({ lunch }) => {
+  const [ratingTitle, ...ratingSubParts] = lunch.lunchDescription.split(',');
+  let ratingSub = ratingSubParts.join(',');
+  ratingSub = ratingSub.replace(/\(\d+(,\s*\d+)*\)/g, '').trim(); // Remove all occurrences of parentheses and numbers
+
+  const day = lunch.day.split('-')[1].trim(); // Extract the day after the hyphen
+
+  return (
+    <div className="swipe-card">
+      <h2 className="rating-title">{ratingTitle}</h2>
+      <p className="rating-sub">{ratingSub}</p>
+      <p className="rating-day">{day}</p>
     </div>
   );
-}
+};
 
 export default SwipeCard;
