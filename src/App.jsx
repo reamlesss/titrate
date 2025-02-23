@@ -7,7 +7,8 @@ import SwipeCard from './components/SwipeCard';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TinderCard from 'react-tinder-card';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import Login from './components/Login';
 import axios from 'axios';
 
 function App() {
@@ -15,9 +16,18 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [swipeClass, setSwipeClass] = useState('');
+  const [isWeekend, setIsWeekend] = useState(false);
 
   useEffect(() => {
     const fetchTodayLunches = async () => {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        setIsWeekend(true);
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get('http://localhost:3000/scrape/today');
         setTodayLunches(response.data);
@@ -49,6 +59,12 @@ function App() {
     console.log(myIdentifier + ' left the screen');
   };
 
+  const getCurrentDayName = () => {
+    const days = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
+    const today = new Date();
+    return days[today.getDay()];
+  };
+
   return (
     <>
       {/* NAVBAR */}
@@ -70,25 +86,39 @@ function App() {
         </Container>
       </Navbar>
 
+      <Login></Login>
+
       {/* MAIN SECTION */}
       <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
-        {!loading && todayLunches.length > 0 && currentIndex < todayLunches.length && (
+        {!loading && isWeekend && (
+          <h1 className='mb-5 info-heading'>
+            O víkendu nejsou žádné obědy
+          </h1>
+        )}
+
+        {!loading && !isWeekend && todayLunches.length > 0 && currentIndex < todayLunches.length && (
           <h1 className='mb-5 info-heading'>
             Swipuj jako na tinderu!
           </h1>
         )}
 
-        {!loading && (todayLunches.length === 0 || currentIndex >= todayLunches.length) && (
+        {!loading && !isWeekend && (todayLunches.length === 0 || currentIndex >= todayLunches.length) && (
           <h1 className='mb-5 no-lunches-heading'>
             Už nejsou žádné obědy
           </h1>
+        )}
+
+        { !isWeekend &&!loading && (
+          <h2 className='mb-5'>
+            {getCurrentDayName()}
+          </h2>
         )}
 
         {loading ? (
           <Spinner animation="border" role="status" size="lg" variant="danger">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
-        ) : todayLunches.length > 0 && currentIndex < todayLunches.length ? (
+        ) : !isWeekend && todayLunches.length > 0 && currentIndex < todayLunches.length ? (
           <TinderCard
             key={currentIndex}
             onSwipe={onSwipe}
