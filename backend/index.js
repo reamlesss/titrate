@@ -2,11 +2,13 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
+const puppeteer = require("puppeteer");
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
+app.use(express.json());
 
 const scrapeData = async () => {
   const url = "https://strav.nasejidelna.cz/0341/login";
@@ -73,7 +75,6 @@ app.get("/scrape/week", async (req, res) => {
       const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
       return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
     });
-    console.log(currentWeekData);
     res.json(currentWeekData);
   } catch (error) {
     res.status(500).send("Error occurred while scraping");
@@ -97,10 +98,50 @@ app.get("/scrape/today", async (req, res) => {
           year: "numeric",
         }) === today
     );
-    console.log(todayData);
+    // console.log(todayData);
     res.json(todayData);
   } catch (error) {
     res.status(500).send("Error occurred while scraping");
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const loginUrl = "https://strav.nasejidelna.cz/0341/login";
+
+  console.log("Received login request with username:", username, "and password:", password);
+
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(loginUrl);
+
+    console.log("Navigated to login page");
+
+    console.log("Typing username:", username, "of type:", typeof username);
+    console.log("Typing password:", password, "of type:", typeof password);
+
+    await page.type("#j_username", String(username));
+    await page.type("#j_password", String(password));
+    await page.click('input[type="submit"]');
+
+    console.log("Submitted login form");
+
+    await page.waitForNavigation();
+
+    const currentUrl = page.url();
+    const success = currentUrl.includes(
+      "https://strav.nasejidelna.cz/0341/faces/secured/main.jsp?status=true"
+    );
+
+    console.log("Login success:", success);
+
+    await browser.close();
+
+    res.json({ success });
+  } catch (error) {
+    console.error("Error during login attempt:", error);
+    res.status(500).send("Error occurred while attempting to log in");
   }
 });
 

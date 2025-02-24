@@ -4,7 +4,7 @@ use titrate;
 
 create table user (
     id int not null AUTO_INCREMENT,
-    email varchar(255) not null unique,
+    username varchar(255) not null unique,
     primary key (id)
 );
 
@@ -27,8 +27,11 @@ create table rating (
 create table additionalQuestions (
     id int not null AUTO_INCREMENT,
     user_id int not null,
-    question varchar(255) not null,
-    answer varchar(255),
+    temperature_rating int,
+    portion_rating int,
+    appearance_rating int,
     foreign key (user_id) references user (id),
     primary key (id)
 );
+
+

@@ -15,16 +15,23 @@
 }
 
 .btn-primary {
-  background-color: transparent !important;
+  background-color: black !important;
   border-color: black;
   border-width: 3px;
-  color: black;
+  color: white;
   font-weight: bold;
-  transition: background-color 0.3s, color 0.3s;
+  transition: 0.3s;
 }
 
 .btn-primary:hover {
   background-color: black !important;
   color: white !important;
   border-color: black !important;
+  transform: scale(1.05);
+}
+
+.btn-loading {
+  background-color: black !important;
+  opacity: 100% !important;
+  color: white;
 }
