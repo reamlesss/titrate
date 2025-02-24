@@ -1,0 +1,40 @@
+.additional-questions {
+  background-color: #ffc72c;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.question {
+  margin-bottom: 20px;
+}
+
+.emoji-container {
+  display: flex;
+  gap: 10px;
+  font-size: 3rem;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.rating-emoji {
+  transition: transform 0.3s ease, filter 0.3s ease, margin 0.2s ease;
+}
+
+/* Rotating effect on hover */
+.rating-emoji:hover {
+  transform: scale(1.5);
+}
+
+/* Grayscale and blur effect for unselected emojis */
+.rating-emoji:not(.selected):not(:hover) {
+  filter: grayscale(100%) blur(0px);
+}
+
+/* Highlight selected emoji */
+.rating-emoji.selected {
+  transform: scale(1.5);
+  filter: none;
+}

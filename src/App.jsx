@@ -10,6 +10,7 @@ import TinderCard from 'react-tinder-card';
 import { useEffect, useState } from 'react';
 import Login from './components/Login';
 import axios from 'axios';
+import AdditionalQuestions from './components/AdditionalQuestions';
 
 function App() {
   const [todayLunches, setTodayLunches] = useState([]);
@@ -17,6 +18,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [swipeClass, setSwipeClass] = useState('');
   const [isWeekend, setIsWeekend] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showAdditionalQuestions, setShowAdditionalQuestions] = useState(false);
+  const [selectedLunch, setSelectedLunch] = useState(null);
 
   useEffect(() => {
     const fetchTodayLunches = async () => {
@@ -50,7 +54,13 @@ function App() {
       setSwipeClass('swipe-right');
     }
     setTimeout(() => {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
+      setCurrentIndex((prevIndex) => {
+        const newIndex = prevIndex + 1;
+        if (newIndex >= todayLunches.length) {
+          setShowAdditionalQuestions(true);
+        }
+        return newIndex;
+      });
       setSwipeClass('');
     }, 800); // Match the duration of the swipe animations
   };
@@ -63,6 +73,15 @@ function App() {
     const days = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
     const today = new Date();
     return days[today.getDay()];
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLunchSelection = (lunchNumber) => {
+    setSelectedLunch(lunchNumber);
+    setTodayLunches(todayLunches.filter(lunch => lunch.lunchNumber.includes(lunchNumber.toString())));
   };
 
   return (
@@ -79,60 +98,65 @@ function App() {
               className="align-top"
             />
           </Navbar.Brand>
-          <Nav className="justify-content-center">
-            <Nav.Link href="#about" className="text-light">O nás</Nav.Link>
-            <Nav.Link href="#services" className="text-light">Login/Profil</Nav.Link>
+          <Nav className="justify-content-center align-items-center">
+            {/* <Nav.Link href="#about" className="text-light">O nás</Nav.Link> */}
+            {/* <Nav.Link href="#services" className="text-light">Login/Profil</Nav.Link> */}
           </Nav>
         </Container>
       </Navbar>
 
-      <Login></Login>
+      {!isLoggedIn ? (
+        <Login onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
+          {!loading && isWeekend && (
+            <h1 className='mb-5 info-heading'>
+              O víkendu nejsou žádné obědy
+            </h1>
+          )}
 
-      {/* MAIN SECTION */}
-      <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
-        {!loading && isWeekend && (
-          <h1 className='mb-5 info-heading'>
-            O víkendu nejsou žádné obědy
-          </h1>
-        )}
-
-        {!loading && !isWeekend && todayLunches.length > 0 && currentIndex < todayLunches.length && (
-          <h1 className='mb-5 info-heading'>
-            Swipuj jako na tinderu!
-          </h1>
-        )}
-
-        {!loading && !isWeekend && (todayLunches.length === 0 || currentIndex >= todayLunches.length) && (
-          <h1 className='mb-5 no-lunches-heading'>
-            Už nejsou žádné obědy
-          </h1>
-        )}
-
-        { !isWeekend &&!loading && (
-          <h2 className='mb-5'>
-            {getCurrentDayName()}
-          </h2>
-        )}
-
-        {loading ? (
-          <Spinner animation="border" role="status" size="lg" variant="danger">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        ) : !isWeekend && todayLunches.length > 0 && currentIndex < todayLunches.length ? (
-          <TinderCard
-            key={currentIndex}
-            onSwipe={onSwipe}
-            onCardLeftScreen={() => onCardLeftScreen(todayLunches[currentIndex].lunchNumber)}
-            preventSwipe={['up', 'down']}
-          >
-            <div className={swipeClass}>
-              <SwipeCard lunch={todayLunches[currentIndex]} />
+          {!loading && !isWeekend && todayLunches.length > 0 && !selectedLunch && (
+            <div className="lunch-selection justify-content-center align-items-center ">
+              <h1 className='mb-5 info-heading'>
+                Který oběd jste měl/a?
+              </h1>
+              <button className="btn btn-primary m-2" onClick={() => handleLunchSelection(1)}>Oběd 1</button>
+              <button className="btn btn-primary m-2" onClick={() => handleLunchSelection(2)}>Oběd 2</button>
             </div>
-          </TinderCard>
-        ) : (
-          <p className='fs-1 d-none'>Už nejsou žádné obědy.</p>
-        )}
-      </div>
+          )}
+
+          {!loading && !isWeekend && todayLunches.length > 0 && selectedLunch && currentIndex < todayLunches.length && (
+            <h1 className='mb-5 info-heading'>
+              Swipuj jako na tinderu!
+            </h1>
+          )}
+
+          {!loading && (
+            <h2 className='mb-5'>
+              {getCurrentDayName()}
+            </h2>
+          )}
+
+          {loading ? (
+            <Spinner animation="border" role="status" size="lg" variant="danger">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          ) : !isWeekend && todayLunches.length > 0 && selectedLunch && currentIndex < todayLunches.length ? (
+            <TinderCard
+              key={currentIndex}
+              onSwipe={onSwipe}
+              onCardLeftScreen={() => onCardLeftScreen(todayLunches[currentIndex].lunchNumber)}
+              preventSwipe={['up', 'down']}
+            >
+              <div className={swipeClass}>
+                <SwipeCard lunch={todayLunches[currentIndex]} />
+              </div>
+            </TinderCard>
+          ) : (
+            showAdditionalQuestions && <AdditionalQuestions />
+          )}
+        </div>
+      )}
 
       {/* FOOTER */}
       <footer className="bg-red text-center py-3 mt-auto">
