@@ -25,7 +25,11 @@ function Login({ onLoginSuccess }) {
       }
     } catch (error) {
       console.error('Error during login:', error);
-      setError('An error occurred during login');
+      if (error.response && error.response.status === 500 && error.response.data === "Jidelna website is currently experiencing issues. Please try again later.") {
+        setError('Jidelna website is currently experiencing issues. Please try again later.');
+      } else {
+        setError('An error occurred during login');
+      }
     } finally {
       setLoading(false);
     }

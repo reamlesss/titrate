@@ -8,11 +8,17 @@ create table user (
     primary key (id)
 );
 
+drop table user
+
+
+
 create table food (
     id int not null AUTO_INCREMENT,
     name varchar(255) not null,
     primary key (id)
 );
+
+
 
 create table rating (
     id int not null AUTO_INCREMENT,
@@ -23,6 +29,8 @@ create table rating (
     foreign key (food_id) references food (id),
     primary key (id)
 );
+
+drop table rating;
 
 create table additionalQuestions (
     id int not null AUTO_INCREMENT,
@@ -35,3 +43,6 @@ create table additionalQuestions (
 );
 
 
+drop table additionalquestions
+
+SELECT * FROM rating;

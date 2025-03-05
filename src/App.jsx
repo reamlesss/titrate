@@ -21,6 +21,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAdditionalQuestions, setShowAdditionalQuestions] = useState(false);
   const [selectedLunch, setSelectedLunch] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const fetchTodayLunches = async () => {
@@ -45,7 +46,21 @@ function App() {
     fetchTodayLunches();
   }, []);
 
-  const onSwipe = (direction) => {
+  const onSwipe = async (direction) => {
+    const liked = direction === 'right';
+    const lunch = todayLunches[currentIndex];
+
+    try {
+      await axios.post('http://localhost:3000/rating', {
+        user_id: userId,
+        food_id: lunch.id,
+        rating: liked,
+      });
+      console.log('Rating saved');
+    } catch (error) {
+      console.error('Error saving rating:', error);
+    }
+
     if (direction === 'left') {
       console.log('didn\'t like');
       setSwipeClass('swipe-left');
@@ -75,13 +90,26 @@ function App() {
     return days[today.getDay()];
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (userId) => {
     setIsLoggedIn(true);
+    setUserId(userId);
   };
 
   const handleLunchSelection = (lunchNumber) => {
     setSelectedLunch(lunchNumber);
     setTodayLunches(todayLunches.filter(lunch => lunch.lunchNumber.includes(lunchNumber.toString())));
+  };
+
+  const handleAdditionalQuestionsSubmit = async (ratings) => {
+    try {
+      await axios.post('http://localhost:3000/additionalQuestions', {
+        user_id: userId,
+        ...ratings,
+      });
+      console.log('Additional questions saved');
+    } catch (error) {
+      console.error('Error saving additional questions:', error);
+    }
   };
 
   return (
@@ -116,12 +144,19 @@ function App() {
           )}
 
           {!loading && !isWeekend && todayLunches.length > 0 && !selectedLunch && (
-            <div className="lunch-selection justify-content-center align-items-center ">
+            <div className="lunch-selection d-flex justify-content-center align-items-center flex-column">
               <h1 className='mb-5 info-heading'>
                 Který oběd jste měl/a?
               </h1>
-              <button className="btn btn-primary m-2" onClick={() => handleLunchSelection(1)}>Oběd 1</button>
-              <button className="btn btn-primary m-2" onClick={() => handleLunchSelection(2)}>Oběd 2</button>
+              {todayLunches.map((lunch, index) => (
+                <button
+                  key={index}
+                  className="btn bg-yellow m-2 lunch-choice"
+                  onClick={() => handleLunchSelection(lunch.lunchNumber)}
+                >
+                  {lunch.lunchDescription}
+                </button>
+              ))}
             </div>
           )}
 
@@ -153,7 +188,7 @@ function App() {
               </div>
             </TinderCard>
           ) : (
-            showAdditionalQuestions && <AdditionalQuestions />
+            showAdditionalQuestions && <AdditionalQuestions onSubmit={handleAdditionalQuestionsSubmit} />
           )}
         </div>
       )}

@@ -120,6 +120,19 @@ footer {
   animation: spinner-border 0.5s linear infinite;
 }
 
+
+.lunch-choice{
+  height: 100px !important;
+  text-align: center;
+  transition: .3s !important;
+  width: 400px !important;
+  
+}
+
+.lunch-choice:hover{
+  transform: scale(110%);
+}
+
 @keyframes spinner-border {
   to {
     transform: rotate(360deg);

@@ -14,7 +14,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "",
+  password: "trapovejgulas",
   database: "titrate",
 });
 
@@ -188,7 +188,11 @@ app.post("/login", async (req, res) => {
     await browser.close();
   } catch (error) {
     console.error("Error during login attempt:", error);
-    res.status(500).send("Error occurred while attempting to log in");
+    if (error.message.includes("500")) {
+      res.status(500).send("Jidelna website is currently experiencing issues. Please try again later.");
+    } else {
+      res.status(500).send("Error occurred while attempting to log in");
+    }
   }
 });
 
@@ -251,36 +255,49 @@ app.post("/additionalQuestions", (req, res) => {
   );
 });
 
-app.listen(PORT, async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  try {
-    const scrapedData = await scrapeData();
-    console.log("All lunches:", scrapedData);
+app
+  .listen(PORT, async () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+    try {
+      const scrapedData = await scrapeData();
+      console.log("All lunches:", scrapedData);
 
-    const currentWeekData = scrapedData.filter((lunch) => {
-      const lunchDate = parseDate(lunch.day);
-      const now = new Date();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-      const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
-      return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
-    });
-    console.log("Current week lunches:", currentWeekData);
+      const currentWeekData = scrapedData.filter((lunch) => {
+        const lunchDate = parseDate(lunch.day);
+        const now = new Date();
+        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+        const endOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 6)
+        );
+        return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
+      });
+      console.log("Current week lunches:", currentWeekData);
 
-    const today = new Date().toLocaleDateString("cs-CZ", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-    const todayData = scrapedData.filter(
-      (lunch) =>
-        parseDate(lunch.day).toLocaleDateString("cs-CZ", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }) === today
-    );
-    console.log("Today's lunches:", todayData);
-  } catch (error) {
-    console.error("Error occurred while scraping:", error);
-  }
-});
+      const today = new Date().toLocaleDateString("cs-CZ", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      const todayData = scrapedData.filter(
+        (lunch) =>
+          parseDate(lunch.day).toLocaleDateString("cs-CZ", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }) === today
+      );
+      console.log("Today's lunches:", todayData);
+    } catch (error) {
+      console.error("Error occurred while scraping:", error);
+    }
+  })
+  .on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `Port ${PORT} is already in use. Please use a different port.`
+      );
+      process.exit(1);
+    } else {
+      console.error("Server error:", err);
+    }
+  });
