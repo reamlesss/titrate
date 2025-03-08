@@ -51,6 +51,10 @@ footer {
   animation: slideUp 0.5s ease-in-out, fadeIn 0.5s ease-in-out;
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
+.info-day {
+  animation: slideUp 0.5s ease-in-out, fadeIn 0.5s ease-in-out;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
 
 .no-lunches-heading {
   animation: fadeIn 0.5s ease-in-out;
@@ -120,16 +124,14 @@ footer {
   animation: spinner-border 0.5s linear infinite;
 }
 
-
-.lunch-choice{
+.lunch-choice {
   height: 100px !important;
   text-align: center;
-  transition: .3s !important;
+  transition: 0.3s !important;
   width: 400px !important;
-  
 }
 
-.lunch-choice:hover{
+.lunch-choice:hover {
   transform: scale(110%);
 }
 

@@ -14,7 +14,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "trapovejgulas",
+  password: "",
   database: "titrate",
 });
 
@@ -70,46 +70,37 @@ const parseDate = (dateString) => {
   return null;
 };
 
-app.get("/scrape", async (req, res) => {
-  console.log("Scraping...");
-  try {
-    const scrapedData = await scrapeData();
-    res.json(scrapedData);
-  } catch (error) {
-    res.status(500).send("Error occurred while scraping");
-  }
-});
+let dailyData = [];
 
-app.get("/scrape/week", async (req, res) => {
-  console.log("Scraping for current week...");
+async function scrapeDaily() {
+  console.log("Scraping for current day...");
   try {
     const scrapedData = await scrapeData();
-    const currentWeekData = scrapedData.filter((lunch) => {
-      const lunchDate = parseDate(lunch.day);
-      const now = new Date();
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-      const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
-      return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
+    const today = new Date().toLocaleDateString("cs-CZ", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
-    res.json(currentWeekData);
+    dailyData = scrapedData.filter(
+      (lunch) =>
+        parseDate(lunch.day).toLocaleDateString("cs-CZ", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) === today
+    );
   } catch (error) {
-    res.status(500).send("Error occurred while scraping");
+    console.error("Error occurred while scraping:", error);
   }
+}
+
+app.get("/today", (req, res) => {
+  res.json(dailyData);
 });
 
-app.post("/food", (req, res) => {
-  const { name } = req.body;
-  const query = "INSERT INTO food (name) VALUES (?)";
-  db.query(query, [name], (err, result) => {
-    if (err) {
-      console.error("Error inserting food:", err);
-      res.status(500).send("Error inserting food");
-      return;
-    }
-    res.json({ success: true, foodId: result.insertId });
-  });
-});
-
+// Call scrapeDaily once at server start
+scrapeDaily();
+setInterval(scrapeDaily, 24 * 60 * 60 * 1000);
 
 app.get("/scrape/today", async (req, res) => {
   console.log("Scraping for current day...");
@@ -245,8 +236,6 @@ app.post("/user", (req, res) => {
   });
 });
 
-
-
 app.post("/rating", (req, res) => {
   const { user_id, food_id, rating } = req.body;
   const query =
@@ -290,7 +279,7 @@ app
     console.log(`Server is running on http://localhost:${PORT}`);
     try {
       const scrapedData = await scrapeData();
-      console.log("All lunches:", scrapedData);
+      // console.log("All lunches:", scrapedData); PRINTS THE FUCK OUT EVERYTHING THAT EXISTS ON THE FUCKING MOTHERFUCKING WEBSITE
 
       const currentWeekData = scrapedData.filter((lunch) => {
         const lunchDate = parseDate(lunch.day);
@@ -301,7 +290,7 @@ app
         );
         return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
       });
-      console.log("Current week lunches:", currentWeekData);
+      // console.log("Current week lunches:", currentWeekData);
 
       const today = new Date().toLocaleDateString("cs-CZ", {
         day: "2-digit",
@@ -316,7 +305,12 @@ app
             year: "numeric",
           }) === today
       );
-      console.log("Today's lunches:", todayData);
+
+      if (todayData == "") {
+        console.log("there are no lunches ");
+      } else {
+        console.log("Today's lunches:", todayData);
+      }
     } catch (error) {
       console.error("Error occurred while scraping:", error);
     }
@@ -331,3 +325,47 @@ app
       console.error("Server error:", err);
     }
   });
+
+// OLD FUNCTNS.
+
+// app.get("/scrape", async (req, res) => {
+//   console.log("Scraping...");
+//   try {
+//     const scrapedData = await scrapeData();
+//     res.json(scrapedData);
+//   } catch (error) {
+//     res.status(500).send("Error occurred while scraping");
+//   }
+// });
+
+// TODO: SHOW UPCOMING LUNCHES IN THE WEBSITE
+
+// app.get("/scrape/week", async (req, res) => {
+//   console.log("Scraping for current week...");
+//   try {
+//     const scrapedData = await scrapeData();
+//     const currentWeekData = scrapedData.filter((lunch) => {
+//       const lunchDate = parseDate(lunch.day);
+//       const now = new Date();
+//       const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+//       const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+//       return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
+//     });
+//     res.json(currentWeekData);
+//   } catch (error) {
+//     res.status(500).send("Error occurred while scraping");
+//   }
+// });
+
+// app.post("/food", (req, res) => {
+//   const { name } = req.body;
+//   const query = "INSERT INTO food (name) VALUES (?)";
+//   db.query(query, [name], (err, result) => {
+//     if (err) {
+//       console.error("Error inserting food:", err);
+//       res.status(500).send("Error inserting food");
+//       return;
+//     }
+//     res.json({ success: true, foodId: result.insertId });
+//   });
+// });
