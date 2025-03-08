@@ -4,13 +4,9 @@ use titrate;
 
 create table user (
     id int not null AUTO_INCREMENT,
-    username varchar(255) not null unique,
+    email varchar(255) not null unique,
     primary key (id)
 );
-
-drop table user
-
-
 
 create table food (
     id int not null AUTO_INCREMENT,
@@ -18,7 +14,7 @@ create table food (
     primary key (id)
 );
 
-
+SELECT * FROM food;
 
 create table rating (
     id int not null AUTO_INCREMENT,
@@ -29,8 +25,6 @@ create table rating (
     foreign key (food_id) references food (id),
     primary key (id)
 );
-
-drop table rating;
 
 create table additionalQuestions (
     id int not null AUTO_INCREMENT,
@@ -43,6 +37,13 @@ create table additionalQuestions (
 );
 
 
-drop table additionalquestions
+
+alter table additionalQuestions
+add column rating_id int not null,
+add foreign key (rating_id) references rating (id);
+SELECT * FROM rating;
+
+SELECT * FROM additionalQuestions;
+
 
 SELECT * FROM rating;

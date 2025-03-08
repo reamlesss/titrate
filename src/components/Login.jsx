@@ -3,12 +3,21 @@ import axios from 'axios';
 import Spinner from 'react-bootstrap/Spinner';
 import './Login.css';
 
+
+//  async function test() {
+
+//    let username = 'vondracek';
+//     const userIdResponse = await axios.get(`http://localhost:3000/user/${username}`);
+//     const userId = userIdResponse.data.userId;
+//     console.log(userId);
+  
+// }
+
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -19,6 +28,10 @@ function Login({ onLoginSuccess }) {
       });
       if (response.data.success) {
         setError('');
+        const userIdResponse = await axios.get(`http://localhost:3000/user/${username}`);
+        const userId = userIdResponse.data.userId;
+        console.log(userId);
+        localStorage.setItem('userId', userId);
         onLoginSuccess();
       } else {
         setError('Invalid username or password');
@@ -34,6 +47,8 @@ function Login({ onLoginSuccess }) {
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 flex-column login-cont">

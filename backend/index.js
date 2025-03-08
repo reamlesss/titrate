@@ -97,6 +97,20 @@ app.get("/scrape/week", async (req, res) => {
   }
 });
 
+app.post("/food", (req, res) => {
+  const { name } = req.body;
+  const query = "INSERT INTO food (name) VALUES (?)";
+  db.query(query, [name], (err, result) => {
+    if (err) {
+      console.error("Error inserting food:", err);
+      res.status(500).send("Error inserting food");
+      return;
+    }
+    res.json({ success: true, foodId: result.insertId });
+  });
+});
+
+
 app.get("/scrape/today", async (req, res) => {
   console.log("Scraping for current day...");
   try {
@@ -118,6 +132,24 @@ app.get("/scrape/today", async (req, res) => {
   } catch (error) {
     res.status(500).send("Error occurred while scraping");
   }
+});
+
+app.get("/user/:username", (req, res) => {
+  const { username } = req.params;
+  const query = "SELECT id FROM user WHERE username = ?";
+  db.query(query, [username], (err, results) => {
+    if (err) {
+      console.error("Error fetching user ID:", err);
+      res.status(500).send("Error fetching user ID");
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).send("User not found");
+      return;
+    }
+    console.log(results[0].id);
+    res.json({ userId: results[0].id });
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -189,7 +221,11 @@ app.post("/login", async (req, res) => {
   } catch (error) {
     console.error("Error during login attempt:", error);
     if (error.message.includes("500")) {
-      res.status(500).send("Jidelna website is currently experiencing issues. Please try again later.");
+      res
+        .status(500)
+        .send(
+          "Jidelna website is currently experiencing issues. Please try again later."
+        );
     } else {
       res.status(500).send("Error occurred while attempting to log in");
     }
@@ -209,18 +245,7 @@ app.post("/user", (req, res) => {
   });
 });
 
-app.post("/food", (req, res) => {
-  const { name } = req.body;
-  const query = "INSERT INTO food (name) VALUES (?)";
-  db.query(query, [name], (err, result) => {
-    if (err) {
-      console.error("Error inserting food:", err);
-      res.status(500).send("Error inserting food");
-      return;
-    }
-    res.json({ success: true, foodId: result.insertId });
-  });
-});
+
 
 app.post("/rating", (req, res) => {
   const { user_id, food_id, rating } = req.body;
@@ -237,13 +262,18 @@ app.post("/rating", (req, res) => {
 });
 
 app.post("/additionalQuestions", (req, res) => {
-  const { user_id, temperature_rating, portion_rating, appearance_rating } =
-    req.body;
+  const {
+    user_id,
+    rating_id,
+    temperature_rating,
+    portion_rating,
+    appearance_rating,
+  } = req.body;
   const query =
-    "INSERT INTO additionalQuestions (user_id, temperature_rating, portion_rating, appearance_rating) VALUES (?, ?, ?, ?)";
+    "INSERT INTO additionalQuestions (user_id, rating_id, temperature_rating, portion_rating, appearance_rating) VALUES (?, ?, ?, ?, ?)";
   db.query(
     query,
-    [user_id, temperature_rating, portion_rating, appearance_rating],
+    [user_id, rating_id, temperature_rating, portion_rating, appearance_rating],
     (err, result) => {
       if (err) {
         console.error("Error inserting additional questions:", err);

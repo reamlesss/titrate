@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './AdditionalQuestions.css';
 
-const AdditionalQuestions = () => {
+const AdditionalQuestions = ({ onSubmit, ratingId }) => {
   const [temperatureRating, setTemperatureRating] = useState(null);
   const [portionRating, setPortionRating] = useState(null);
   const [appearanceRating, setAppearanceRating] = useState(null);
@@ -9,6 +10,23 @@ const AdditionalQuestions = () => {
   const temperatureEmojis = ['🥶', '🙂', '🥵'];
   const portionEmojis = ['💀', '🍛', '🫃'];
   const appearanceEmojis = ['💩', '😐', '😍'];
+
+  const handleSubmit = async () => {
+    const ratings = {
+      temperature_rating: temperatureRating,
+      portion_rating: portionRating,
+      appearance_rating: appearanceRating,
+      rating_id: ratingId,
+    };
+
+    try {
+      await axios.post('http://localhost:3000/additionalQuestions', ratings);
+      console.log('Additional questions saved');
+      onSubmit(ratings);
+    } catch (error) {
+      console.error('Error saving additional questions:', error);
+    }
+  };
 
   return (
     <div className="additional-questions bg-yellow p-4 rounded-4 w-50">
@@ -55,6 +73,7 @@ const AdditionalQuestions = () => {
           ))}
         </div>
       </div>
+      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 };

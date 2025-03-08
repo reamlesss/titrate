@@ -22,6 +22,7 @@ function App() {
   const [showAdditionalQuestions, setShowAdditionalQuestions] = useState(false);
   const [selectedLunch, setSelectedLunch] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [ratingId, setRatingId] = useState(null);
 
   useEffect(() => {
     const fetchTodayLunches = async () => {
@@ -46,17 +47,28 @@ function App() {
     fetchTodayLunches();
   }, []);
 
+  useEffect(() => {
+
+    
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   const onSwipe = async (direction) => {
     const liked = direction === 'right';
     const lunch = todayLunches[currentIndex];
 
     try {
-      await axios.post('http://localhost:3000/rating', {
+      const response = await axios.post('http://localhost:3000/rating', {
         user_id: userId,
         food_id: lunch.id,
         rating: liked,
       });
       console.log('Rating saved');
+      setRatingId(response.data.ratingId);
     } catch (error) {
       console.error('Error saving rating:', error);
     }
@@ -188,7 +200,7 @@ function App() {
               </div>
             </TinderCard>
           ) : (
-            showAdditionalQuestions && <AdditionalQuestions onSubmit={handleAdditionalQuestionsSubmit} />
+            showAdditionalQuestions && <AdditionalQuestions onSubmit={handleAdditionalQuestionsSubmit} ratingId={ratingId} />
           )}
         </div>
       )}
