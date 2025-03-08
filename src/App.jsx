@@ -36,7 +36,7 @@ function App() {
       }
 
       try {
-        const response = await axios.get('http://localhost:3000/scrape/today');
+        const response = await axios.get('http://localhost:3000/today');
         setTodayLunches(response.data);
       } catch (error) {
         console.error('Error fetching today\'s lunches:', error);

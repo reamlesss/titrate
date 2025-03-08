@@ -307,7 +307,7 @@ app
       );
 
       if (todayData == "") {
-        console.log("there are no lunches ");
+        console.log("Either it is weekend or the scraper stoped working for some reason");
       } else {
         console.log("Today's lunches:", todayData);
       }
