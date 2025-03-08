@@ -4,6 +4,7 @@ const cheerio = require("cheerio");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
 const mysql = require("mysql");
+const cron = require("node-cron");
 
 const app = express();
 const PORT = 3000;
@@ -76,19 +77,7 @@ async function scrapeDaily() {
   console.log("Scraping for current day...");
   try {
     const scrapedData = await scrapeData();
-    const today = new Date().toLocaleDateString("cs-CZ", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-    dailyData = scrapedData.filter(
-      (lunch) =>
-        parseDate(lunch.day).toLocaleDateString("cs-CZ", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }) === today
-    );
+    dailyData = scrapedData;
   } catch (error) {
     console.error("Error occurred while scraping:", error);
   }
@@ -98,20 +87,15 @@ app.get("/today", (req, res) => {
   res.json(dailyData);
 });
 
-// Call scrapeDaily once at server start
-scrapeDaily();
-setInterval(scrapeDaily, 24 * 60 * 60 * 1000);
-
-app.get("/scrape/today", async (req, res) => {
-  console.log("Scraping for current day...");
+app.get("/scrape/today", (req, res) => {
+  console.log("Filtering data for current day...");
   try {
-    const scrapedData = await scrapeData();
     const today = new Date().toLocaleDateString("cs-CZ", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
-    const todayData = scrapedData.filter(
+    const todayData = dailyData.filter(
       (lunch) =>
         parseDate(lunch.day).toLocaleDateString("cs-CZ", {
           day: "2-digit",
@@ -121,7 +105,7 @@ app.get("/scrape/today", async (req, res) => {
     );
     res.json(todayData);
   } catch (error) {
-    res.status(500).send("Error occurred while scraping");
+    res.status(500).send("Error occurred while filtering data");
   }
 });
 
@@ -278,39 +262,8 @@ app
   .listen(PORT, async () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     try {
-      const scrapedData = await scrapeData();
-      // console.log("All lunches:", scrapedData); PRINTS THE FUCK OUT EVERYTHING THAT EXISTS ON THE FUCKING MOTHERFUCKING WEBSITE
-
-      const currentWeekData = scrapedData.filter((lunch) => {
-        const lunchDate = parseDate(lunch.day);
-        const now = new Date();
-        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-        const endOfWeek = new Date(
-          now.setDate(now.getDate() - now.getDay() + 6)
-        );
-        return lunchDate >= startOfWeek && lunchDate <= endOfWeek;
-      });
-      // console.log("Current week lunches:", currentWeekData);
-
-      const today = new Date().toLocaleDateString("cs-CZ", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-      const todayData = scrapedData.filter(
-        (lunch) =>
-          parseDate(lunch.day).toLocaleDateString("cs-CZ", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          }) === today
-      );
-
-      if (todayData == "") {
-        console.log("Either it is weekend or the scraper stoped working for some reason");
-      } else {
-        console.log("Today's lunches:", todayData);
-      }
+      await scrapeDaily();
+      cron.schedule("0 5 * * *", scrapeDaily); // Schedule to run every day at 5 AM
     } catch (error) {
       console.error("Error occurred while scraping:", error);
     }

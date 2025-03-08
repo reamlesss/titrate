@@ -11,7 +11,8 @@ import { useEffect, useState } from 'react';
 import Login from './components/Login';
 import axios from 'axios';
 import AdditionalQuestions from './components/AdditionalQuestions';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, Link } from 'react-router-dom';
+import Menu from './components/Menu';
 
 function App() {
   const [todayLunches, setTodayLunches] = useState([]);
@@ -140,76 +141,82 @@ function App() {
             />
           </Navbar.Brand>
           <Nav className="justify-content-center align-items-center">
+            <Nav.Link as={Link} to="/week" className="text-light">
+              Obědy tento týden
+            </Nav.Link>
             {/* <Nav.Link href="#about" className="text-light">O nás</Nav.Link> */}
             {/* <Nav.Link href="#services" className="text-light">Login/Profil</Nav.Link> */}
           </Nav>
         </Container>
       </Navbar>
 
-      <Routes>
-        <Route path="/login" element={!isLoggedIn ? <Login onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
-        <Route path="/" element={
-          isLoggedIn ? (
-            <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
-              {!loading && isWeekend && (
-                <h1 className='mb-5 info-heading'>
-                  O víkendu nejsou žádné obědy
-                </h1>
-              )}
-
-              {!loading && !isWeekend && todayLunches.length > 0 && !selectedLunch && (
-                <div className="lunch-selection d-flex justify-content-center align-items-center flex-column">
+      <div className="main-content">
+        <Routes>
+          <Route path="/login" element={!isLoggedIn ? <Login onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
+          <Route path="/" element={
+            isLoggedIn ? (
+              <div className="d-flex justify-content-center align-items-center vh-100 flex-column mt-5">
+                {!loading && isWeekend && (
                   <h1 className='mb-5 info-heading'>
-                    Který oběd jste měl/a?
+                    O víkendu nejsou žádné obědy
                   </h1>
-                  {todayLunches.map((lunch, index) => (
-                    <button
-                      key={index}
-                      className="btn bg-yellow m-2 lunch-choice"
-                      onClick={() => handleLunchSelection(lunch.lunchNumber)}
-                    >
-                      {lunch.lunchDescription}
-                    </button>
-                  ))}
-                </div>
-              )}
+                )}
 
-              {!loading && !isWeekend && todayLunches.length > 0 && selectedLunch && currentIndex < todayLunches.length && (
-                <h1 className='mb-5 info-heading'>
-                  Swipuj jako na tinderu!
-                </h1>
-              )}
-
-              {!loading && (
-                <h2 className='mb-5 info-day'>
-                  {getCurrentDayName()}
-                </h2>
-              )}
-
-              {loading ? (
-                <Spinner animation="border" role="status" size="lg" variant="danger">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              ) : !isWeekend && todayLunches.length > 0 && selectedLunch && currentIndex < todayLunches.length ? (
-                <TinderCard
-                  key={currentIndex}
-                  onSwipe={onSwipe}
-                  onCardLeftScreen={() => onCardLeftScreen(todayLunches[currentIndex].lunchNumber)}
-                  preventSwipe={['up', 'down']}
-                >
-                  <div className={swipeClass}>
-                    <SwipeCard lunch={todayLunches[currentIndex]} />
+                {!loading && !isWeekend && todayLunches.length > 0 && !selectedLunch && (
+                  <div className="lunch-selection d-flex justify-content-center align-items-center flex-column">
+                    <h1 className='mb-5 info-heading'>
+                      Který oběd jste měl/a?
+                    </h1>
+                    {todayLunches.map((lunch, index) => (
+                      <button
+                        key={index}
+                        className="btn bg-yellow m-2 lunch-choice"
+                        onClick={() => handleLunchSelection(lunch.lunchNumber)}
+                      >
+                        {lunch.lunchDescription}
+                      </button>
+                    ))}
                   </div>
-                </TinderCard>
-              ) : (
-                showAdditionalQuestions && <AdditionalQuestions onSubmit={handleAdditionalQuestionsSubmit} ratingId={ratingId} />
-              )}
-            </div>
-          ) : (
-            <Navigate to="/login" />
-          )
-        } />
-      </Routes>
+                )}
+
+                {!loading && !isWeekend && todayLunches.length > 0 && selectedLunch && currentIndex < todayLunches.length && (
+                  <h1 className='mb-5 info-heading'>
+                    Swipuj jako na tinderu!
+                  </h1>
+                )}
+
+                {!loading && (
+                  <h2 className='mb-5 info-day'>
+                    {getCurrentDayName()}
+                  </h2>
+                )}
+
+                {loading ? (
+                  <Spinner animation="border" role="status" size="lg" variant="danger">
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                ) : !isWeekend && todayLunches.length > 0 && selectedLunch && currentIndex < todayLunches.length ? (
+                  <TinderCard
+                    key={currentIndex}
+                    onSwipe={onSwipe}
+                    onCardLeftScreen={() => onCardLeftScreen(todayLunches[currentIndex].lunchNumber)}
+                    preventSwipe={['up', 'down']}
+                  >
+                    <div className={swipeClass}>
+                      <SwipeCard lunch={todayLunches[currentIndex]} />
+                    </div>
+                  </TinderCard>
+                ) : (
+                  showAdditionalQuestions && <AdditionalQuestions onSubmit={handleAdditionalQuestionsSubmit} ratingId={ratingId} />
+                )}
+              </div>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } />
+          <Route path="/week" element={<Menu />} />
+        </Routes>
+      </div>
 
       {/* FOOTER */}
       <footer className="bg-red text-center py-3 mt-auto">
